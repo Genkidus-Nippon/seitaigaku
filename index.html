@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -17,7 +19,7 @@ nav{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:8px 16px}.t
 </head>
 <body>
 <div class="timer"><div class="clock" id="clock">120:00</div><div class="phase"><b id="phaseTitle">2時間タイマー</b><br><span id="phaseHint">入力 → 想起 → 採点 → 弱点再テスト</span></div><button class="tbtn" id="timerBtn">開始</button><i class="timerProgress" id="timerProgress"></i></div>
-<header><div class="kicker">生 態 学 ・ ACTIVE RECALL</div><h1>2時間<b>アクティブ・ブースト</b></h1><div class="sub">解説を読む前に答える。粗い自動採点で穴を見つけ、弱点だけ再テスト。</div></header>
+<header><div class="kicker">生 態 学 ・ ACTIVE RECALL　<span style="background:#e8b23a;color:#4a3b2a;padding:2px 7px;border-radius:10px;letter-spacing:0">改良版 v2</span></div><h1>2時間<b>アクティブ・ブースト</b></h1><div class="sub">解説を見る前に答案を入力 → 自動採点 → 詳細解説 → 弱点だけ再テスト</div><div style="margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff4c9;color:#4a3b2a;font-size:12px;font-weight:700">追加済み：自動採点／白紙テスト／関連情報／詳細用語解説／学習記録保存</div></header>
 <nav>
 <button class="tab on" data-view="plan">作戦<small>学習ループ</small></button><button class="tab" data-view="cards">想起カード<small>50〜100字</small></button><button class="tab" data-view="recall">白紙テスト<small>概念をつなぐ</small></button><button class="tab" data-view="practice">記述演習<small>問2以降</small></button><button class="tab" data-view="review">弱点<small>再テスト</small></button>
 </nav>
