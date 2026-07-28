@@ -2,579 +2,77 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>生態学 2時間ブースト</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>生態学 2時間アクティブ・ブースト</title>
 <style>
-  :root{
-    --moss:#2f4a34;      /* deep forest */
-    --moss-2:#3d5f43;
-    --fern:#6b8f5a;      /* mid green */
-    --lichen:#c4d6a0;    /* pale green */
-    --sun:#e8b23a;       /* highlight yellow */
-    --bark:#4a3b2a;      /* brown */
-    --paper:#f6f4ec;     /* off white */
-    --paper-2:#efe9d9;
-    --ink:#20281f;
-    --dim:#6f7a68;
-    --line:#d8d3c2;
-    --ok:#3f8c5c;
-    --err:#b5533a;
-    --shadow:0 2px 0 rgba(32,40,31,.08),0 12px 30px -18px rgba(32,40,31,.45);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--paper);color:var(--ink);
-    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans",-apple-system,"Yu Gothic",Meiryo,sans-serif;
-    -webkit-font-smoothing:antialiased;line-height:1.6}
-  body{padding:0 0 90px;max-width:820px;margin:0 auto}
-  h1,h2,h3{font-family:"Hiragino Mincho ProN","Yu Mincho",serif}
-
-  /* ---------- header ---------- */
-  header{padding:22px 20px 16px;position:relative;overflow:hidden}
-  .kicker{font-size:11px;letter-spacing:.28em;color:var(--fern);font-weight:700}
-  header h1{font-size:26px;letter-spacing:.02em;margin:2px 0 4px;color:var(--moss)}
-  header h1 b{color:var(--sun)}
-  .sub{font-size:12.5px;color:var(--dim)}
-  .leaf{position:absolute;right:-30px;top:-30px;width:150px;height:150px;opacity:.10}
-
-  /* ---------- timer bar ---------- */
-  .timer{position:sticky;top:0;z-index:40;background:var(--moss);color:var(--paper);
-    display:flex;align-items:center;gap:12px;padding:10px 16px;
-    box-shadow:0 6px 18px -12px rgba(0,0,0,.6)}
-  .clock{font-family:"SFMono-Regular",Menlo,Consolas,monospace;font-size:22px;font-weight:700;
-    letter-spacing:.04em;min-width:88px}
-  .clock.low{color:var(--sun)}
-  .phase{font-size:11px;flex:1;line-height:1.35;color:var(--lichen)}
-  .phase b{color:#fff;font-size:12.5px}
-  .tbtn{background:rgba(255,255,255,.14);border:0;color:#fff;padding:7px 12px;border-radius:8px;
-    font-size:12px;font-weight:700;cursor:pointer}
-  .tbtn:active{transform:translateY(1px)}
-
-  /* ---------- tabs ---------- */
-  nav{display:flex;gap:6px;padding:14px 16px 4px}
-  .tab{flex:1;background:var(--paper-2);border:1px solid var(--line);border-radius:11px;
-    padding:11px 6px;font-size:13px;font-weight:700;color:var(--dim);cursor:pointer;
-    text-align:center;transition:.15s;line-height:1.25}
-  .tab small{display:block;font-weight:400;font-size:10px;margin-top:2px}
-  .tab.on{background:var(--moss);color:#fff;border-color:var(--moss)}
-  .tab.on small{color:var(--lichen)}
-
-  main{padding:14px 16px}
-  .hide{display:none!important}
-
-  /* ---------- plan panel ---------- */
-  .plan{background:linear-gradient(160deg,var(--moss),var(--moss-2));color:var(--paper);
-    border-radius:16px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
-  .plan h2{font-size:16px;color:#fff;margin-bottom:10px}
-  .step{display:flex;gap:12px;padding:9px 0;border-top:1px solid rgba(255,255,255,.13)}
-  .step:first-of-type{border-top:0}
-  .num{flex:0 0 30px;height:30px;border-radius:50%;background:var(--sun);color:var(--bark);
-    font-weight:800;display:grid;place-items:center;font-size:14px}
-  .step div p{font-size:13px}
-  .step div .t{font-size:12.5px;color:var(--lichen);font-weight:700}
-  .why{background:var(--paper);color:var(--ink);border-radius:16px;padding:16px 18px;
-    box-shadow:var(--shadow);margin-bottom:14px}
-  .why h3{font-size:14px;color:var(--moss);margin-bottom:8px}
-  .why p{font-size:13px;margin-bottom:6px}
-  .chip{display:inline-block;background:var(--lichen);color:var(--moss);font-size:11.5px;
-    padding:3px 9px;border-radius:20px;margin:3px 3px 0 0;font-weight:700}
-  .chip.hot{background:var(--sun);color:var(--bark)}
-
-  /* ---------- flashcards ---------- */
-  .fc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px}
-  .filter{display:flex;gap:5px;flex-wrap:wrap}
-  .fbtn{background:var(--paper-2);border:1px solid var(--line);border-radius:20px;
-    padding:5px 11px;font-size:11.5px;font-weight:700;color:var(--dim);cursor:pointer}
-  .fbtn.on{background:var(--fern);color:#fff;border-color:var(--fern)}
-  .progress{font-size:12px;color:var(--dim);white-space:nowrap}
-
-  .card{background:var(--paper);border:1px solid var(--line);border-radius:18px;
-    min-height:290px;padding:24px;box-shadow:var(--shadow);cursor:pointer;
-    display:flex;flex-direction:column;position:relative;user-select:none}
-  .card .flag{position:absolute;top:14px;right:16px;font-size:10.5px;font-weight:700;
-    padding:3px 8px;border-radius:20px}
-  .flag.hot{background:var(--sun);color:var(--bark)}
-  .flag.warm{background:var(--lichen);color:var(--moss)}
-  .years{position:absolute;top:14px;left:16px;font-size:10.5px;color:var(--dim);font-weight:700}
-  .term{font-family:"Hiragino Mincho ProN",serif;font-size:24px;color:var(--moss);
-    margin:auto 0 6px;text-align:center;line-height:1.35}
-  .tap{text-align:center;font-size:11px;color:var(--dim);margin-top:8px}
-  .answer{font-size:14px;line-height:1.75}
-  .answer .lead{font-weight:700;color:var(--moss);font-size:13px;margin-bottom:6px}
-  .answer .model{background:var(--paper-2);border-left:3px solid var(--fern);
-    padding:10px 12px;border-radius:0 8px 8px 0;font-size:13px;margin-top:8px}
-  .answer .cnt{font-size:11px;color:var(--dim);text-align:right;margin-top:5px}
-
-  .nav-row{display:flex;gap:8px;margin-top:12px}
-  .nav-row button{flex:1;padding:13px;border-radius:12px;border:0;font-size:14px;font-weight:700;cursor:pointer}
-  .prev{background:var(--paper-2);color:var(--ink);border:1px solid var(--line)!important}
-  .next{background:var(--moss);color:#fff}
-  .know-row{display:flex;gap:8px;margin-top:8px}
-  .know-row button{flex:1;padding:11px;border-radius:12px;border:1px solid var(--line);
-    font-size:12.5px;font-weight:700;cursor:pointer;background:var(--paper)}
-  .know{color:var(--ok)} .again{color:var(--err)}
-
-  /* ---------- practice ---------- */
-  .q{background:var(--paper);border:1px solid var(--line);border-radius:16px;
-    padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow)}
-  .q .qhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
-  .q .qtag{font-size:11px;font-weight:800;color:var(--sun);background:var(--bark);
-    padding:3px 9px;border-radius:6px;white-space:nowrap}
-  .q .qyears{font-size:10.5px;color:var(--dim);font-weight:700}
-  .q h3{font-size:15px;color:var(--moss);margin-bottom:6px;line-height:1.45}
-  .q .body{font-size:13.5px;margin-bottom:4px}
-  .q details{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
-  .q summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--fern);list-style:none}
-  .q summary::-webkit-details-marker{display:none}
-  .q summary::before{content:"▸ ";color:var(--sun)}
-  .q details[open] summary::before{content:"▾ "}
-  .q .ans{font-size:13px;margin-top:10px;line-height:1.75}
-  .q .ans h4{font-size:12.5px;color:var(--bark);margin:10px 0 3px;font-family:sans-serif}
-  .q .ans ul{margin:4px 0 4px 18px}
-  .q .ans li{margin-bottom:3px}
-  .q .ans .key{background:#fbf3d6;padding:1px 4px;border-radius:4px;font-weight:700}
-  .q .ans .pts{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
-
-  .foot{text-align:center;font-size:11px;color:var(--dim);padding:22px 20px 0;line-height:1.7}
-  @media(max-width:520px){
-    header h1{font-size:22px}
-    .term{font-size:21px}
-    .tab{font-size:12px}
-  }
+:root{--moss:#2f4a34;--moss2:#3d5f43;--fern:#6b8f5a;--lichen:#c4d6a0;--sun:#e8b23a;--bark:#4a3b2a;--paper:#f6f4ec;--paper2:#efe9d9;--ink:#20281f;--dim:#6f7a68;--line:#d8d3c2;--ok:#3f8c5c;--err:#b5533a;--shadow:0 2px 0 #20281f14,0 12px 30px -18px #20281f73}
+*{box-sizing:border-box;margin:0;padding:0}html,body{background:var(--paper);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;line-height:1.7}body{max-width:900px;margin:auto;padding-bottom:80px}button,textarea{font:inherit}button{cursor:pointer}h1,h2,h3{font-family:"Hiragino Mincho ProN","Yu Mincho",serif}.hide{display:none!important}
+.timer{position:sticky;top:0;z-index:30;display:flex;gap:12px;align-items:center;padding:10px 16px;background:var(--moss);color:#fff;box-shadow:0 6px 18px -12px #000}.clock{font:700 21px Menlo,monospace;min-width:88px}.phase{flex:1;font-size:11px;color:var(--lichen);line-height:1.4}.phase b{color:#fff;font-size:12.5px}.tbtn{border:0;border-radius:9px;background:#ffffff20;color:#fff;padding:8px 12px;font-weight:700}.timerProgress{position:absolute;bottom:0;left:0;height:3px;background:var(--sun);width:0}
+header{padding:22px 18px 14px}.kicker{font-size:11px;letter-spacing:.24em;color:var(--fern);font-weight:800}h1{font-size:27px;color:var(--moss)}h1 b{color:var(--sun)}.sub{font-size:13px;color:var(--dim)}
+nav{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:8px 16px}.tab{border:1px solid var(--line);border-radius:12px;background:var(--paper2);color:var(--dim);padding:10px 4px;font-size:12px;font-weight:800}.tab small{display:block;font-size:9px;font-weight:400}.tab.on{background:var(--moss);border-color:var(--moss);color:#fff}.tab.on small{color:var(--lichen)}main{padding:14px 16px}
+.panel,.card,.q{border:1px solid var(--line);border-radius:18px;background:#fff;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}.hero{background:linear-gradient(145deg,var(--moss),var(--moss2));color:#fff}.hero h2{font-size:18px}.hero p{font-size:13px;color:#e7efdf}.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}.step{padding:12px;border:1px solid #ffffff25;border-radius:13px;background:#ffffff0d;font-size:12px}.step b{display:block;color:var(--sun)}.note{border-left:4px solid var(--sun);background:#fff8df}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{border-radius:20px;background:var(--lichen);color:var(--moss);padding:4px 10px;font-size:11px;font-weight:800}.chip.hot{background:var(--sun);color:var(--bark)}
+.toprow,.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.filters{display:flex;gap:6px;flex-wrap:wrap}.fbtn{border:1px solid var(--line);border-radius:20px;background:var(--paper2);padding:6px 12px;font-size:11px;font-weight:800}.fbtn.on{background:var(--fern);color:#fff}.meta{font-size:11px;color:var(--dim)}.term{text-align:center;color:var(--moss);font:700 25px "Yu Mincho",serif;margin:18px 0}.prompt{font-size:12px;font-weight:800;color:var(--moss)}textarea{width:100%;min-height:130px;margin-top:8px;padding:13px;border:1px solid var(--line);border-radius:12px;background:#fbfaf6;resize:vertical;outline:none}textarea:focus{border-color:var(--fern)}.primary{width:100%;border:0;border-radius:12px;padding:12px;background:var(--moss);color:#fff;font-weight:800;margin-top:10px}.primary:disabled{opacity:.4}.secondary{border:1px solid var(--line);border-radius:11px;padding:10px;background:#fff;font-weight:700}.score{font-size:32px;font-weight:900;color:var(--moss)}.bar{height:8px;background:var(--paper2);border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--fern)}.kw{display:inline-block;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:800;margin:4px 3px}.kw.hit{background:#dcefd7;color:#24613b}.kw.miss{background:#f4ddd6;color:#994631}.box{border-radius:12px;background:var(--paper2);padding:13px;margin-top:10px;font-size:13px}.box h4{font-size:12px;color:var(--fern)}.warning{border:1px solid #ead1c8;background:#fff8f5}.rating{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.rating button{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px;font-size:11px;font-weight:800}.navrow{display:flex;gap:8px;margin-top:10px}.navrow button{flex:1}.q h3{font-size:16px;color:var(--moss)}.tag{background:var(--bark);color:var(--sun);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:800}.checklist{display:grid;gap:7px;margin-top:10px}.check{border-radius:10px;padding:10px;font-size:12px;font-weight:700}.check.hit{background:#dcefd7}.check.miss{background:#f4ddd6}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{text-align:center}.stat b{display:block;font-size:28px;color:var(--moss)}.small{font-size:11px;color:var(--dim)}
+@media(max-width:650px){.steps{grid-template-columns:1fr}.tab{font-size:10px;padding:8px 2px}.tab small{display:none}h1{font-size:23px}.stats{grid-template-columns:1fr 1fr}.timer{gap:7px}.phase span{display:none}}
 </style>
 </head>
 <body>
-
-<div class="timer">
-  <div class="clock" id="clock">120:00</div>
-  <div class="phase"><b id="phaseTitle">タップして2時間タイマー開始</b><br><span id="phaseHint">前半60分：用語暗記 → 後半60分：記述演習</span></div>
-  <button class="tbtn" id="tbtn">開始</button>
-</div>
-
-<header>
-  <svg class="leaf" viewBox="0 0 100 100"><path fill="#2f4a34" d="M50 5C30 25 15 45 15 65a35 35 0 0070 0C85 45 70 25 50 5zm0 12v76" stroke="#2f4a34" stroke-width="2"/></svg>
-  <div class="kicker">生 態 学 ・ 過 去 問 分 析</div>
-  <h1>2時間<b>ブースト</b></h1>
-  <div class="sub">2021–2023の過去問から頻出パターンを抽出。得点効率の高い順に回せます。</div>
-</header>
-
+<div class="timer"><div class="clock" id="clock">120:00</div><div class="phase"><b id="phaseTitle">2時間タイマー</b><br><span id="phaseHint">入力 → 想起 → 採点 → 弱点再テスト</span></div><button class="tbtn" id="timerBtn">開始</button><i class="timerProgress" id="timerProgress"></i></div>
+<header><div class="kicker">生 態 学 ・ ACTIVE RECALL</div><h1>2時間<b>アクティブ・ブースト</b></h1><div class="sub">解説を読む前に答える。粗い自動採点で穴を見つけ、弱点だけ再テスト。</div></header>
 <nav>
-  <div class="tab on" data-view="plan">作戦<small>2時間の使い方</small></div>
-  <div class="tab" data-view="cards">用語カード<small>問1 対策</small></div>
-  <div class="tab" data-view="practice">記述演習<small>問2以降</small></div>
+<button class="tab on" data-view="plan">作戦<small>学習ループ</small></button><button class="tab" data-view="cards">想起カード<small>50〜100字</small></button><button class="tab" data-view="recall">白紙テスト<small>概念をつなぐ</small></button><button class="tab" data-view="practice">記述演習<small>問2以降</small></button><button class="tab" data-view="review">弱点<small>再テスト</small></button>
 </nav>
-
 <main>
-  <!-- PLAN -->
-  <section id="plan">
-    <div class="plan">
-      <h2>🌿 2時間の回し方</h2>
-      <div class="step"><div class="num">1</div><div><div class="t">0–15分　過去問の傾向を頭に入れる</div><p>下の「毎年出る形式」を読む。問1は必答40点、問2以降は選択。<b style="color:var(--sun)">選べる＝得意テーマだけ深掘りすればいい</b>。</p></div></div>
-      <div class="step"><div class="num">2</div><div><div class="t">15–60分　用語カードで問1（40点）を固める</div><p>「用語カード」タブへ。★HOT（複数年出題）から回す。5つ書ければ40点。まず7〜8語を50〜100字で言えるように。</p></div></div>
-      <div class="step"><div class="num">3</div><div><div class="t">60–110分　記述演習で選択問題を2〜3本仕込む</div><p>「記述演習」タブへ。★複数年テーマ（資源利用曲線・相互関係表・学習）を最優先。本番で選ぶ2〜3問の"持ちネタ"を作る。</p></div></div>
-      <div class="step"><div class="num">4</div><div><div class="t">110–120分　弱点カードだけ最終確認</div><p>「もう一度」にした用語だけ見直して締め。</p></div></div>
-    </div>
-
-    <div class="why">
-      <h3>📌 毎年ほぼ確実に出る形式（3年分で確認済み）</h3>
-      <p>・<b>【問1】用語説明</b>：15語から5語選び各50〜100字 ／ <b>40点・全員必答</b>（毎年）</p>
-      <p>・<b>【問2〜】から2〜3問選択</b>：選べるので、得意テーマを仕込めば確実</p>
-      <p style="margin-top:8px;color:var(--moss);font-weight:700">複数年くり返し出ている"山"：</p>
-      <span class="chip hot">資源利用曲線 a〜d</span><span class="chip hot">相互関係表 A〜D</span><span class="chip hot">動物の学習の種類</span>
-      <span class="chip">生態系サービス4分類</span><span class="chip">植物の防御3様式</span><span class="chip">生物多様性の脅威</span><span class="chip">α/β/γ多様性</span>
-      <p style="margin-top:10px;font-size:12px;color:var(--dim)">※採点は先生の裁量なので満点保証はできませんが、これらを押さえれば得点源を確実に確保できます。</p>
-    </div>
-  </section>
-
-  <!-- CARDS -->
-  <section id="cards" class="hide">
-    <div class="fc-top">
-      <div class="filter">
-        <button class="fbtn on" data-f="all">全部</button>
-        <button class="fbtn" data-f="hot">★HOT</button>
-        <button class="fbtn" data-f="again">もう一度</button>
-      </div>
-      <div class="progress" id="prog">1 / 1</div>
-    </div>
-
-    <div class="card" id="card" onclick="flip()">
-      <span class="years" id="cYears"></span>
-      <span class="flag" id="cFlag"></span>
-      <div id="cFront"><div class="term" id="cTerm"></div><div class="tap">タップで解説を表示</div></div>
-      <div id="cBack" class="hide answer"></div>
-    </div>
-
-    <div class="know-row" id="knowRow" style="display:none">
-      <button class="again" onclick="mark('again')">✗ もう一度</button>
-      <button class="know" onclick="mark('know')">✓ 覚えた</button>
-    </div>
-    <div class="nav-row">
-      <button class="prev" onclick="move(-1)">← 前</button>
-      <button class="next" onclick="move(1)">次 →</button>
-    </div>
-  </section>
-
-  <!-- PRACTICE -->
-  <section id="practice" class="hide"></section>
-
-  <div class="foot">
-    アップロードされた 2021 / 2022 / 2023 年度『生態学』過去問をもとに構成。<br>
-    モデル解答は標準的な生態学の内容に基づく学習用の目安です。講義プリントとも照合してください。
-  </div>
+<section id="plan">
+<div class="panel hero"><h2>🌿 2時間の回し方</h2><p>インプットだけで終わらず、各フェーズで必ず記憶から取り出します。</p><div class="steps"><div class="step"><b>0–15分</b>出題構造と頻出テーマ</div><div class="step"><b>15–50分</b>想起カードに先に回答</div><div class="step"><b>50–70分</b>白紙で概念を接続</div><div class="step"><b>70–105分</b>記述答案を作成</div><div class="step"><b>105–120分</b>弱点のみ再テスト</div></div></div>
+<div class="panel note"><h3>答案の基本形</h3><p><b>用語説明：</b>「何か」→「仕組み」→「条件・例」→「生態学的な帰結」</p><p><b>記述問題：</b>結論 → 根拠 → 因果関係 → 関連用語。単語の羅列より「なぜなら」「その結果」で接続する。</p></div>
+<div class="panel"><h3>頻出テーマ</h3><div class="chips"><span class="chip hot">資源利用曲線</span><span class="chip hot">相互関係表</span><span class="chip hot">動物の学習</span><span class="chip">生態系サービス</span><span class="chip">植物の防御</span><span class="chip">α・β・γ多様性</span><span class="chip">分断化</span></div></div>
+</section>
+<section id="cards" class="hide"><div class="toprow"><div class="filters"><button class="fbtn on" data-filter="all">全部</button><button class="fbtn" data-filter="hot">★HOT</button><button class="fbtn" data-filter="weak">弱点</button></div><div class="meta" id="cardProgress"></div></div><div class="card" id="cardArea"></div><div class="navrow"><button class="secondary" id="prevCard">← 前</button><button class="secondary" id="nextCard">次 →</button></div></section>
+<section id="recall" class="hide"><div class="panel hero"><h2>白紙アウトプット</h2><p>資料を見ずに、指定語を因果でつないでください。</p></div><div class="q" id="recallArea"></div></section>
+<section id="practice" class="hide"><div class="filters" id="qTabs"></div><div id="practiceArea"></div></section>
+<section id="review" class="hide"><div class="panel hero"><h2>弱点だけ再テスト</h2><p>「もう一度」「難しい」にした用語を最後の15分で回します。</p></div><div class="stats"><div class="panel stat"><b id="weakStat">0</b><span class="small">弱点</span></div><div class="panel stat"><b id="goodStat">0</b><span class="small">習得</span></div><div class="panel stat"><b id="answerStat">0</b><span class="small">回答済み</span></div></div><button class="primary" id="startWeak">弱点カードを開始</button><button class="secondary" id="resetData" style="width:100%;margin-top:8px">学習記録をリセット</button></section>
 </main>
-
 <script>
-/* ---------------- DATA: 用語カード ---------------- */
-/* freq: 出題年 / hot: 複数年or重要 */
 const TERMS=[
- {t:"表現型可塑性",y:"2021・2022",hot:true,
-  d:"同一の遺伝子型（ゲノム）をもつ個体でも、生育・発育する環境条件に応じて形態・生理・行動などの表現型が変化する性質。",
-  m:"同じ遺伝子型でも環境に応じて表現型が変わる性質。例：水温で性が決まる、日照で葉の形が変わるなど。環境変動への適応的な柔軟性をもたらす。"},
- {t:"遺伝的浮動",y:"2021・2023",hot:true,
-  d:"自然選択とは無関係に、偶然（サンプリング誤差）によって集団内の遺伝子頻度が世代ごとに変動する現象。",
-  m:"偶然によって遺伝子頻度が世代間で変動する現象。集団が小さいほど影響が大きく、対立遺伝子の固定や消失を招く。ボトルネックや創始者効果と関連。"},
- {t:"アリー効果",y:"2022・2023",hot:true,
-  d:"個体群密度が低すぎると、繁殖相手不足・防御力低下などで一個体あたりの適応度（増加率）が下がる現象。",
-  m:"個体群密度が低いほど個体あたりの適応度・増加率が下がる現象。配偶相手が見つからない、集団防御が働かない等が原因。低密度個体群の絶滅リスクを高める。"},
- {t:"中規模攪乱仮説",y:"2022・2023",hot:true,
-  d:"攪乱の頻度・強度が中程度のときに種多様性が最大になるという仮説。",
-  m:"攪乱が中程度のとき種多様性が最大になるとする仮説。攪乱がないと競争排除で優占種のみ、強すぎると耐性種のみが残るため、中間で共存種数が最も多い。"},
- {t:"ニッチ転移",y:"2022",hot:false,
-  d:"競争種の存在などにより、実現ニッチが基本ニッチからずれ、資源利用の位置が移動すること（形質置換とも関連）。",
-  m:"競争などにより種の資源利用位置（実現ニッチ）が本来の基本ニッチからずれる現象。競争を回避する方向へニッチが移動し、共存を可能にする。"},
- {t:"メタ個体群",y:"2022・2023",hot:true,
-  d:"分断された複数の局所個体群が、個体の移動（分散）によって緩やかにつながった上位の個体群構造。",
-  m:"分断された局所個体群が個体の分散でゆるくつながった個体群集合。局所絶滅と再定着のバランスで全体が維持される。生息地の連結性が存続に重要。"},
- {t:"ニホンホホビロコメツキモドキ",y:"2022・2023",hot:true,
-  d:"竹に穿孔し、菌を栽培する日本の甲虫。母虫が特定の菌を持ち運び（菌の共生・農業的行動）幼虫の餌とする例として知られる。",
-  m:"竹に営巣し菌類を栽培する日本の甲虫。母虫が菌を運び込み幼虫の餌とする、動物による『菌の農業』（相利共生）の例。共生・子の世話の題材。"},
- {t:"純一次生産量",y:"2021・2022",hot:true,
-  d:"総一次生産量（GPP）から生産者自身の呼吸量を差し引いた、植物体に実際に蓄積される有機物量（NPP）。",
-  m:"総一次生産量から生産者の呼吸量を引いた値（NPP）。植物が正味で蓄積する有機物量で、その生態系が上位栄養段階へ供給できるエネルギー量を表す。"},
- {t:"ゾーニング",y:"2021・2022・2023",hot:true,
-  d:"地域を保全の目的・利用度に応じて区分（例：核心地域・緩衝地域・移行地域）し、保全と利用を両立させる管理手法。",
-  m:"保全対象地を目的別に区分けする管理手法。核心地域・緩衝地域・移行地域などに分け、厳格保護と持続的利用を空間的に両立させる。国立公園やMAB計画で用いる。"},
- {t:"利他行動",y:"2021・2023",hot:true,
-  d:"自分の適応度を下げても他個体の適応度を高める行動。血縁選択や包括適応度で説明される。",
-  m:"自らの適応度を下げ他個体の適応度を上げる行動。血縁個体に向かう場合は包括適応度（血縁選択）で、非血縁では互恵性で説明される。例：ワーカーの不妊、警戒声。"},
- {t:"誘導防御",y:"2021・2023",hot:true,
-  d:"捕食者・食害を受けて初めて発現する、可塑的な防御。あらかじめ常時発現する構成的防御と対比される。",
-  m:"食害や捕食圧を受けてから発現する可塑的な防御。例：食害で二次代謝物（毒）を増やす、被食で棘やヘルメット形態を作る。コストを必要時のみ払える利点がある。"},
- {t:"包括適応度",y:"2022",hot:false,
-  d:"自身の繁殖成功（直接適応度）に、血縁者の繁殖への貢献を血縁度で重みづけして加えた適応度。",
-  m:"自分の子＝直接適応度に、血縁者の繁殖成功を血縁度で割り引いて足した適応度。ハミルトン則（rB>C）で利他行動の進化を説明する概念。"},
- {t:"内的自然増加率(r)",y:"2022",hot:false,
-  d:"資源が無制限で密度効果がない理想条件での、個体群の最大の内在的増加率。",
-  m:"資源が無制限・密度効果なしの理想条件における個体群の最大増加率。出生率と死亡率の差で決まり、指数増殖モデル dN/dt=rN の係数となる。"},
- {t:"ボトルネック効果",y:"2022",hot:false,
-  d:"個体数の急減により遺伝的多様性が大きく失われ、その後回復しても以前の多様性に戻らない現象。",
-  m:"個体数が激減する際、偶然で一部の遺伝子型だけが残り遺伝的多様性が失われる現象。回復後も多様性は低いまま。遺伝的浮動の一形態。"},
- {t:"相変異",y:"2022",hot:false,
-  d:"バッタ類などで密度に応じて形態・生理・行動の異なる孤独相／群生相が現れる、密度依存の表現型可塑性。",
-  m:"個体群密度に応じて形態・色・行動が異なる型（孤独相/群生相）に変わる現象。トビバッタで顕著。高密度で移動性の高い群生相となり大発生・移動を起こす。"},
- {t:"キーストーン捕食者",y:"2022",hot:false,
-  d:"生物量は少なくても、捕食を通じて競争を緩和し群集全体の多様性を大きく左右する捕食者。",
-  m:"個体数・生物量は小さくても群集構造を大きく支配する捕食者。優占する被食者を抑えることで競争排除を防ぎ、多様性を維持する。例：ヒトデ(Pisaster)。"},
- {t:"ベイツ型擬態",y:"2022",hot:false,
-  d:"無毒・無害な種が、有毒・危険な別種（モデル）に似ることで捕食を免れる擬態。",
-  m:"無害な種が有毒・危険なモデル種に似せて捕食を回避する擬態。擬態者に利益、モデルには不利益。ミュラー型（複数の有毒種が互いに似る）と対比される。"},
- {t:"生物多様性",y:"2022",hot:false,
-  d:"遺伝子・種・生態系の3レベルにわたる生命の多様さ全体を指す概念。",
-  m:"生命の多様さを遺伝子・種・生態系の3レベルで捉えた概念。種数だけでなく遺伝的変異や生態系タイプの多様さを含み、生態系サービスの基盤となる。"},
- {t:"誘導防御／構成的防御の別語：基本ニッチ・実現ニッチ",y:"2021",hot:false,
-  d:"基本ニッチ＝競争者・天敵がいない理想条件で利用可能な全範囲。実現ニッチ＝競争等の相互作用の結果、実際に利用する狭い範囲。",
-  m:"基本ニッチは種が潜在的に利用できる資源・環境の全範囲。実現ニッチは競争や捕食で制限され実際に占める範囲。競争排除・共存の説明に用いる。"},
- {t:"密度依存性",y:"2021",hot:false,
-  d:"出生率・死亡率などが個体群密度に応じて変化する性質。負の密度依存が個体群を調整する。",
-  m:"出生率や死亡率が密度に応じて変わる性質。高密度で競争・病気が増え増加率が下がる負の密度依存は個体群を環境収容力へ調整する。アリー効果は正の例。"},
- {t:"トレード・オフ",y:"2021",hot:false,
-  d:"一方の形質・機能を高めると他方が犠牲になる、両立できない関係。",
-  m:"限られた資源の配分で、一方を高めると他方が下がる二律背反。例：繁殖への投資と生存、種子の数と大きさ。生活史戦略の進化を規定する。"},
- {t:"純繁殖率(R₀)",y:"2021",hot:false,
-  d:"一世代あたり、1個体（メス）が生涯に残す平均の娘の数。R₀>1で個体群は増加。",
-  m:"メス1個体が生涯に産む娘の平均数（世代あたり増殖率）。生命表から Σlₓmₓ で求め、R₀>1なら増加、<1なら減少する。"},
- {t:"最適採餌理論",y:"2021",hot:false,
-  d:"採餌に伴う利益（エネルギー摂取）とコスト（時間・危険）の収支を最大化するように行動が進化するとする理論。",
-  m:"動物は餌から得るエネルギーを単位時間あたり最大化するよう採餌すると考える理論。餌選択や滞在時間（限界価値定理）を予測する。"},
- {t:"適応放散",y:"2021",hot:false,
-  d:"1つの祖先種が、多様な環境・ニッチに適応して短期間に多くの種へ分化すること。",
-  m:"共通祖先から多様なニッチへ適応し短期間に多数の種へ分化する現象。例：ガラパゴスフィンチ、ハワイのミツスイ。空きニッチの存在が引き金。"},
- {t:"競争排除則",y:"2021",hot:false,
-  d:"同一の資源をめぐり完全に競合する2種は安定共存できず、一方が排除されるという原則（ガウゼの法則）。",
-  m:"ニッチが完全に重なる2種は共存できず一方が排除される原則（ガウゼ）。共存にはニッチ分化が必要という含意をもつ。"},
- {t:"見かけの競争",y:"2023",hot:false,
-  d:"共通の捕食者を介して、直接資源を奪い合わない2種の被食者が互いに個体数を抑制し合う間接的相互作用。",
-  m:"共通の天敵を共有する2種が、捕食者の増加を通じて互いを抑制し合う間接効果。資源競争がなくても片方が増えると天敵が増え他方が減る。"},
- {t:"トップダウン制御",y:"2023",hot:false,
-  d:"上位捕食者が下位の栄養段階を抑えることで、群集構造が上から支配されること（対：ボトムアップ）。",
-  m:"上位捕食者が被食者を抑え、その効果が食物連鎖を下方へ波及して群集を制御すること。栄養カスケードを生む。資源量が支配するボトムアップと対比。"},
- {t:"環境収容力(K)",y:"2023",hot:false,
-  d:"ある環境が持続的に支えられる個体数の上限。ロジスティック式でN=Kに近づくと増加が止まる。",
-  m:"環境が持続的に維持できる個体数の上限。ロジスティック増殖 dN/dt=rN(1−N/K) で N→K に近づくと増加率が0になる。資源量で決まる。"},
- {t:"小進化",y:"2023",hot:false,
-  d:"種内で起こる、対立遺伝子頻度の変化レベルの進化（対：種分化以上の大進化）。",
-  m:"集団内の遺伝子頻度変化として観察される種内レベルの進化。自然選択・突然変異・遺伝的浮動・遺伝子流動で駆動される。"},
- {t:"ミュラー型擬態",y:"2023",hot:false,
-  d:"複数の有毒・危険な種が互いに似た警告色をもち、捕食者の学習コストを分担して共に利益を得る擬態。",
-  m:"複数の有毒種が互いに似ることで、捕食者が一度学習すれば全種が守られる相互利益的な擬態。全参加種が利益を得る点でベイツ型と異なる。"},
- {t:"適応（進化的適応）",y:"2023",hot:false,
-  d:"自然選択によって集団内に広まった、生存・繁殖を有利にする形質やその過程。",
-  m:"環境で生存・繁殖に有利に働くよう自然選択で進化した形質、またはその過程。可塑的な順化とは区別される。"},
- {t:"生態系（ecosystem）",y:"2023",hot:false,
-  d:"ある地域の生物群集と、それを取り巻く非生物的環境（物質・エネルギー）をひとまとまりとして捉えた系。",
-  m:"生物群集と非生物的環境を一体として、物質循環とエネルギー流を扱う系。生産者・消費者・分解者の相互作用で機能する。"}
+{t:'表現型可塑性',y:'2021・2022',hot:1,d:'同一の遺伝子型でも、生育環境に応じて形態・生理・行動などの表現型が変化する性質。',m:'同一の遺伝子型をもつ個体でも、生育環境に応じて表現型が変わる性質。日照条件による葉形の変化などが例で、変動環境への柔軟な対応を可能にする。',kw:[['同一遺伝子型','同じ遺伝子型','遺伝子型'],['環境','生育環境'],['表現型'],['変化','変わる']],rel:'共通圃場実験では、環境をそろえて消える差を可塑性、残る差を遺伝的分化と判断する。',detail:'一個体の生涯内で起こる変化であり、世代を通した対立遺伝子頻度の変化である進化とは区別する。',trap:'「必要だから個体が変化した」と目的論的に書かない。'},
+{t:'遺伝的浮動',y:'2021・2023',hot:1,d:'自然選択とは無関係な偶然のサンプリングにより、対立遺伝子頻度が世代間で変動する現象。',m:'偶然のサンプリングにより集団内の対立遺伝子頻度が世代間で変化する現象。小集団ほど影響が強く、対立遺伝子の固定や消失を招く。',kw:[['偶然','ランダム'],['対立遺伝子頻度','遺伝子頻度'],['小集団','集団が小さい'],['固定','消失']],rel:'ボトルネック効果と創始者効果は、遺伝的浮動が強く現れる代表例。',detail:'適応度と無関係に頻度が動く点が自然選択との最大の違い。有限集団では必ず生じうる。',trap:'有利な形質が増える現象、と説明しない。'},
+{t:'アリー効果',y:'2022・2023',hot:1,d:'個体群密度が低すぎると、個体あたりの適応度や個体群増加率が低下する現象。',m:'低密度で配偶相手の不足や集団防御の低下が起こり、個体あたりの適応度・増加率が下がる現象。小集団の絶滅リスクを高める。',kw:[['低密度','密度が低い'],['適応度'],['増加率'],['絶滅']],rel:'分断化→小集団化→アリー効果→局所絶滅、という因果で記述に使える。',detail:'密度がある閾値を下回ると増加率が負になる「強いアリー効果」と、低下するが正のままの「弱いアリー効果」がある。',trap:'高密度ほど競争が強くなる通常の負の密度依存と混同しない。'},
+{t:'中規模攪乱仮説',y:'2022・2023',hot:1,d:'攪乱の頻度または強度が中程度のとき、種多様性が最大になるという仮説。',m:'攪乱が弱いと競争排除が進み、強すぎると耐性種しか残らないため、中程度の攪乱で種多様性が最大になるという仮説。',kw:[['中程度','中規模'],['種多様性','多様性'],['最大'],['競争排除'],['耐性種','先駆種']],rel:'横軸を攪乱、縦軸を多様性にすると典型的には山型になる。',detail:'すべての群集で必ず成立する法則ではなく、攪乱の尺度や生産性などに左右される仮説。',trap:'「攪乱が強いほど多様性が高い」と書かない。'},
+{t:'メタ個体群',y:'2022・2023',hot:1,d:'分断された複数の局所個体群が、個体の分散によって結ばれた個体群集合。',m:'複数の局所個体群が個体の分散で結ばれた集合。局所絶滅と再定着の均衡で全体が維持され、生息地間の連結性が重要となる。',kw:[['局所個体群'],['分散','移動'],['局所絶滅'],['再定着']],rel:'生態的回廊は移動を助け、遺伝子流動やレスキュー効果を回復させる。',detail:'各パッチの個体群が独立しているのではなく、移入・移出を通じて存続確率が相互依存する。',trap:'広い地域にいる単一個体群、とだけ説明しない。'},
+{t:'純一次生産量（NPP）',y:'2021・2022',hot:1,d:'総一次生産量から生産者自身の呼吸量を差し引いた、正味の有機物生産量。',m:'総一次生産量GPPから生産者の呼吸量Rを引いた値。植物体に正味で蓄積され、上位栄養段階が利用できるエネルギーの基盤となる。',kw:[['GPP','総一次生産量'],['呼吸量','呼吸'],['差し引','引いた'],['正味'],['上位栄養段階','消費者']],rel:'式は NPP = GPP − R。速度・フローであり、ある時点の現存量とは異なる。',detail:'生態系純生産量NEPは、NPPから従属栄養生物の呼吸も引いた値であり、NPPとは別。',trap:'生態系全体の呼吸量を引く、と書かない。'},
+{t:'ゾーニング',y:'2021・2022・2023',hot:1,d:'保全地域を目的や利用強度に応じて区分し、厳格保護と持続的利用を両立させる管理手法。',m:'地域を核心地域・緩衝地域・移行地域などに区分し、重要区域の厳格保護と周辺での持続的利用を空間的に両立する管理手法。',kw:[['区分','区分け'],['核心地域'],['緩衝地域'],['保護','保全'],['利用']],rel:'生物圏保存地域などで、核心・緩衝・移行の機能を分けて管理する。',detail:'核心地域は保全優先、緩衝地域は影響緩和、移行地域は人間活動との共存を担う。',trap:'海岸などの帯状分布としてのzonationにすり替えない。'},
+{t:'利他行動',y:'2021・2023',hot:1,d:'行為者自身の適応度を下げ、受益者の適応度を高める行動。',m:'行為者の適応度を下げる一方で他個体の適応度を高める行動。血縁個体への行動は包括適応度と血縁選択で説明できる。',kw:[['自身','行為者'],['適応度'],['下げ'],['他個体','受益者'],['高め']],rel:'血縁個体間ではハミルトン則 rB>C、非血縁個体間では互恵的利他行動が重要。',detail:'行動の結果を適応度の費用と利益で定義する。親切そうに見えるかどうかではない。',trap:'種全体のために自己犠牲する、とだけ書かない。'},
+{t:'誘導防御',y:'2021・2023',hot:1,d:'食害や捕食者の存在を受けてから発現する、可塑的な防御。',m:'食害や捕食圧を受けてから発現する防御。二次代謝物の増加や棘状形態の形成などがあり、防御コストを必要時だけ負担できる。',kw:[['食害','捕食'],['受けてから','後'],['防御'],['可塑'],['コスト']],rel:'常時発現している構成的防御と対比する。植物だけでなく動物の防御形態にも見られる。',detail:'誘導には時間遅れがあるため、急な攻撃には間に合わない可能性がある一方、平常時のコストを節約できる。',trap:'あらかじめ常に存在する棘などを、無条件に誘導防御としない。'},
+{t:'包括適応度',y:'2022',hot:0,d:'直接適応度と、血縁者の繁殖への貢献を血縁度で重みづけした間接適応度の合計。',m:'自身の繁殖成功である直接適応度に、血縁者の繁殖を助けた効果を血縁度で割り引いた間接適応度を加えたもの。',kw:[['直接適応度'],['血縁者'],['血縁度'],['間接適応度'],['合計']],rel:'ハミルトン則 rB>C を満たすと、行為者に費用があっても利他行動が進化しうる。',detail:'rは血縁度、Bは受益者の利益、Cは行為者の費用。',trap:'集団全体の繁殖成功を表す指標ではない。'},
+{t:'環境収容力（K）',y:'2023',hot:0,d:'ある環境が長期的・持続的に支えられる個体数の上限。',m:'環境が持続的に維持できる個体数の上限。ロジスティック増殖ではNがKに近づくほど密度効果で増加率が低下する。',kw:[['持続的'],['個体数'],['上限'],['ロジスティック'],['密度']],rel:'ロジスティック式は dN/dt=rN(1−N/K)。Kは環境条件により変化しうる。',detail:'固定不変の壁ではなく、資源量・競争・季節などによって動く概念。',trap:'その環境で一時的に観察された最大個体数と同一視しない。'},
+{t:'ベイツ型擬態',y:'2022',hot:0,d:'無害な種が有毒・危険なモデル種に似ることで、捕食を回避する擬態。',m:'無毒・無害な擬態者が有毒・危険なモデル種の警告形質に似ることで、捕食者から攻撃されにくくなる擬態。',kw:[['無害','無毒'],['有毒','危険'],['モデル'],['似る'],['捕食回避','捕食を回避']],rel:'複数の有毒種が互いに似て学習コストを分担するミュラー型擬態と対比する。',detail:'擬態者が増えすぎると捕食者が警告形質を信用しにくくなり、モデルにも不利益が及びうる。',trap:'両方の種が危険ならミュラー型であり、ベイツ型ではない。'}
 ];
-
-/* ---------------- DATA: 記述演習 ---------------- */
+const RECALL=[{title:'生息地分断化から絶滅まで',prompt:'指定語を使い、因果の流れを120〜200字で説明してください。',words:['小集団','遺伝的浮動','分散','再定着','アリー効果','メタ個体群'],points:[['面積縮小','個体数が減'],['遺伝的浮動','近交弱勢'],['分散','移動'],['再定着','レスキュー'],['アリー効果'],['局所絶滅','メタ個体群']],model:'分断化で生息地面積と局所個体群サイズが減少する。小集団では遺伝的浮動や近交弱勢が強まり、パッチ間の分散阻害で再定着やレスキュー効果も低下する。さらに低密度でアリー効果が働き、局所絶滅が連鎖してメタ個体群全体の絶滅リスクが高まる。'}];
 const QS=[
- {tag:"★複数年",years:"2021・2022 で出題",
-  title:"資源利用曲線 a〜d：種内競争・種間競争の強さ",
-  body:"2種（白・黒）の資源利用曲線 a〜d について、種内競争と種間競争の強弱と、その判断理由を説明せよ。",
-  ans:`<h4>読み取りの原則</h4>
-  <ul>
-   <li><span class="key">曲線の重なり</span>が大きい＝<b>種間競争</b>が強い（同じ餌サイズを奪い合う）。</li>
-   <li>1本の曲線の<span class="key">幅（分散）が広い</span>＝その種内で餌をめぐる<b>種内競争</b>が強い（広い範囲で個体同士が競合）。</li>
-  </ul>
-  <h4>a〜d の典型解答</h4>
-  <ul>
-   <li><b>a（幅広く大きく重なる）</b>：各種の利用幅が広く重なりも大 → 種内競争も種間競争もともに強い。</li>
-   <li><b>b（幅狭く分離）</b>：各種の利用幅が狭く重なりもほぼ無し → 種内競争も種間競争も弱い（ニッチ分化・特殊化）。</li>
-   <li><b>c（幅狭いが接近して重なる）</b>：利用幅は狭い＝種内競争は弱いが、位置が近く重なる＝種間競争は強い。</li>
-   <li><b>d（幅広いが分離）</b>：利用幅が広い＝種内競争は強いが、位置が離れ重なりが小＝種間競争は弱い。</li>
-  </ul>
-  <p class="pts">得点のコツ：必ず「幅→種内」「重なり→種間」の対応を明言し、a〜dを2軸（幅の広狭×重なりの大小）で場合分けする。</p>`},
-
- {tag:"★複数年",years:"2022・2023 で出題",
-  title:"相互関係表 A〜D（+/0/− の組み合わせ）",
-  body:"種Aと種Bの利害（+/0/−）の組み合わせから、A〜Dの関係名を答え、Aの具体例を挙げて生態的役割を説明せよ。",
-  ans:`<h4>A〜D の関係名</h4>
-  <ul>
-   <li><b>A（＋＋）</b>：<span class="key">相利共生</span>（両者が利益）</li>
-   <li><b>B（＋0）</b>：<span class="key">片利共生</span>（一方だけ利益、他方は影響なし）</li>
-   <li><b>C（＋−）</b>：<span class="key">捕食・寄生／被食</span>（一方が利益・他方が不利益）</li>
-   <li><b>D（−−）</b>：<span class="key">競争</span>（両者が不利益）</li>
-  </ul>
-  <p style="font-size:12px;color:var(--dim)">※表の並びで 0-0=中立、+/− の位置が入れ替わっても意味は同じ。</p>
-  <h4>A（相利共生）の具体例（2〜3個・役割つき）</h4>
-  <ul>
-   <li><b>花と送粉者（ハナバチ等）</b>：植物は花粉媒介を得て繁殖、昆虫は蜜・花粉という餌を得る。</li>
-   <li><b>マメ科植物と根粒菌</b>：菌は窒素固定で植物に窒素を供給、植物は光合成産物を菌に供給。</li>
-   <li><b>菌根菌と植物</b>：菌は水・リン等の吸収を助け、植物は炭素（糖）を渡す。</li>
-   <li><b>サンゴと褐虫藻</b>：藻は光合成産物を供給、サンゴは生息場所と栄養（窒素）を供給。</li>
-  </ul>
-  <p class="pts">得点のコツ：例ごとに「互いに相手へ何を与えているか」を対で書く。役割の相互性が採点ポイント。</p>`},
-
- {tag:"★複数年",years:"2021・2023 で出題",
-  title:"動物の「学習」の種類（3〜4つ）",
-  body:"動物の行動における「学習」の種類を挙げ、それぞれ例を示して説明せよ。",
-  ans:`<ul>
-   <li><b>慣れ（馴化）</b>：無害な刺激の繰り返しで反応が減る。例：影に驚かなくなる。</li>
-   <li><b>鋭敏化</b>：強い刺激後、他の刺激への反応が高まる。例：一度襲われた後に警戒が強まる。</li>
-   <li><b>刷り込み（インプリンティング）</b>：発育初期の限られた時期に対象を記憶し追従。例：ヒナが初めて見た動くものを親と認識。</li>
-   <li><b>古典的（レスポンデント）条件づけ</b>：中性刺激と生得的刺激の連合。例：ベルで唾液（パブロフ）。</li>
-   <li><b>オペラント（試行錯誤）条件づけ</b>：行動の結果（報酬・罰）で頻度が変わる。例：レバー押しで餌（スキナー箱）。</li>
-   <li><b>洞察学習</b>：試行錯誤なしに関係を把握し問題解決。例：チンパンジーが道具を組み合わせる。</li>
-  </ul>
-  <p class="pts">得点のコツ：問われる数（3つ or 4つ）に合わせ、必ず<b>種類名＋一文定義＋具体例</b>の3点セットで書く。刷り込み・条件づけ2種は鉄板。</p>`},
-
- {tag:"頻出",years:"2022 で出題",
-  title:"生態系サービスの4分類",
-  body:"生態系サービスは大きく4つに分類される。それぞれ挙げ、具体例を説明せよ。",
-  ans:`<ul>
-   <li><b>供給サービス</b>：食料・水・木材・繊維・医薬品原料など、生態系から得る物質。</li>
-   <li><b>調整サービス</b>：気候調整、洪水・土壌侵食の緩和、水質浄化、送粉、病害虫抑制。</li>
-   <li><b>文化的サービス</b>：レクリエーション、景観・観光、精神的・宗教的価値、教育。</li>
-   <li><b>基盤（支持）サービス</b>：光合成による酸素生産、土壌形成、栄養塩循環、水循環（他の3つを支える土台）。</li>
-  </ul>
-  <p class="pts">得点のコツ：4分類名を正確に。基盤サービスが「他を支える」点に触れると差がつく。</p>`},
-
- {tag:"頻出",years:"2021 で出題",
-  title:"植物の被食に対する防御（主に3様式）",
-  body:"植物の捕食者（植食性昆虫・草食動物など）に対する防御には主に3つの様式がある。例を挙げて説明せよ。",
-  ans:`<ul>
-   <li><b>物理的（機械的）防御</b>：棘・トゲ、硬い表皮、毛（トライコーム）、ケイ酸の蓄積。例：サボテンの棘、イネ科のケイ酸。</li>
-   <li><b>化学的防御</b>：二次代謝物による毒・忌避物質・消化阻害。例：アルカロイド、タンニン、青酸配糖体。<span class="key">構成的</span>（常時）と<span class="key">誘導</span>（食害後に発現）に分かれる。</li>
-   <li><b>生物的（間接）防御</b>：天敵を呼び寄せる。例：食害で放出した揮発性物質で寄生蜂を誘引、アリに蜜を与え守らせる（アリ植物）。</li>
-  </ul>
-  <p class="pts">得点のコツ：3様式それぞれに具体例。化学防御で「誘導防御」に触れると用語問題とも連動して強い。</p>`},
-
- {tag:"頻出",years:"2023 で出題",
-  title:"生物多様性を脅かす4つの要因",
-  body:"生物多様性を脅かす要因は大きく4つある。それぞれ挙げ、具体例を説明せよ。",
-  ans:`<p style="font-size:12px;color:var(--dim)">いわゆる「4つの危機（環境省）」＋近年は気候変動を加える立場もある。定番の4つ：</p>
-  <ul>
-   <li><b>生息地の破壊・改変・分断</b>：開発・森林伐採・埋め立てによる消失と分断。例：熱帯林伐採、湿地の干拓。</li>
-   <li><b>乱獲・過剰利用</b>：狩猟・漁業・採取のとりすぎ。例：マグロの乱獲、希少植物の採取。</li>
-   <li><b>外来種（侵略的外来種）</b>：捕食・競争・交雑で在来種を圧迫。例：マングース、ブラックバス、セイヨウオオマルハナバチ。</li>
-   <li><b>環境汚染・気候変動</b>：農薬・富栄養化・温暖化。例：ネオニコチノイド、海洋酸性化、分布域の変化。</li>
-  </ul>
-  <p class="pts">得点のコツ：4つを列挙し各1例。日本の「4つの危機」（開発／管理放棄＝里山の荒廃／外来種／地球環境変化）で答える手もある。</p>`},
-
- {tag:"頻出",years:"2023 で出題",
-  title:"生物多様性の3レベル ＆ α・β・γ多様性",
-  body:"生物多様性の種多様性以外の2レベルを説明せよ。また区画の図から α・β・γ多様性を計算・説明せよ。",
-  ans:`<h4>種多様性以外の2レベル</h4>
-  <ul>
-   <li><b>遺伝的（遺伝子）多様性</b>：同種内の個体間・集団間の遺伝子（対立遺伝子）の多様さ。環境変化への適応力の源。</li>
-   <li><b>生態系多様性</b>：森林・湿地・草原など生態系（生息環境）のタイプの多様さ。</li>
-  </ul>
-  <h4>α・β・γ多様性</h4>
-  <ul>
-   <li><b>α多様性</b>：1つの小区画（局所）内の種数。各区画で数えて平均する。</li>
-   <li><b>γ多様性</b>：全体（全区画をまとめた地域）の総種数。</li>
-   <li><b>β多様性</b>：区画間の種組成の違い（＝γ/平均α、または種の入れ替わり）。大きいほど場所ごとに顔ぶれが違う。</li>
-  </ul>
-  <p class="pts">得点のコツ：図では「各区画内は似た顔ぶれ→α高・β低」か「区画ごとに顔ぶれが違う→β高」かを見る。γ=平均α×β の関係を必ず書く。</p>`},
-
- {tag:"頻出",years:"2021 で出題",
-  title:"生息地の分断化 → 個体群の絶滅に至る過程",
-  body:"生息地の分断化（fragmentation）が個体群の絶滅に結びつく過程を説明せよ。",
-  ans:`<ul>
-   <li>分断で各パッチの<b>面積が縮小</b>→支えられる個体数が減り<span class="key">局所個体群が小さくなる</span>。</li>
-   <li>小集団では<b>遺伝的浮動・近交弱勢</b>で遺伝的多様性が失われ、適応力・繁殖力が低下。</li>
-   <li>パッチ間の<b>移動（分散）が妨げられ</b>、絶滅した局所個体群の<span class="key">再定着（レスキュー効果）が働かない</span>。</li>
-   <li><b>縁（エッジ）効果</b>で外来種侵入・環境変動・乾燥が増え、内部種に不利。</li>
-   <li><b>アリー効果</b>で低密度個体群の増加率が下がり、確率的変動（人口学的・環境的）で<b>局所絶滅が連鎖</b>→メタ個体群全体が消失。</li>
-  </ul>
-  <p class="pts">得点のコツ：「面積減→小集団→遺伝的劣化＋分散阻害＋確率的絶滅」の連鎖を順序立てて。用語（遺伝的浮動・アリー効果・メタ個体群）を絡めると加点。</p>`},
-
- {tag:"頻出",years:"2021 で出題",
-  title:"標高別ノコギリソウの移植実験（表現型可塑性 vs 遺伝的分化）",
-  body:"異なる標高から採取した種子を同一の畑で栽培。①平均高の傾向、②採取地点間の差が現地より小さかったこと、から言えることを説明せよ。",
-  ans:`<ul>
-   <li><b>①について</b>：同一環境で育てても地点間で平均高に差が残る＝その差の一部は<span class="key">遺伝的に固定された分化</span>（環境だけでなく遺伝要因）。各標高の環境に適応した<b>生態型（エコタイプ）</b>が存在する。</li>
-   <li><b>②について</b>：畑での差が現地の差より小さい＝現地の高低差の多くは<span class="key">環境に応じた表現型可塑性</span>による。つまり表現型＝遺伝的分化＋可塑性の両方で決まる。</li>
-  </ul>
-  <p class="pts">得点のコツ：「同一環境で残る差＝遺伝、環境を揃えて消える差＝可塑性」の切り分けを明言。用語『表現型可塑性』『生態型』を使う。</p>`},
-
- {tag:"頻出",years:"2022・2021 で出題",
-  title:"中規模攪乱仮説（個体数シミュレーション図）",
-  body:"攪乱なし／中程度／頻繁の3図で6種の個体数変化を説明し、示される仮説を述べよ。",
-  ans:`<ul>
-   <li><b>攪乱なし（上）</b>：競争に強い種が優占し他種を排除→<b>競争排除</b>で少数種のみ残り多様性低下。</li>
-   <li><b>中程度（中）</b>：攪乱が優占種を叩き、競争排除の前に多くの種が共存→<span class="key">種数が最大</span>。</li>
-   <li><b>頻繁・強い（下）</b>：攪乱に耐える一部の速い種（先駆種）しか生き残れず→多様性低下。</li>
-  </ul>
-  <p><b>仮説</b>：<span class="key">中規模攪乱仮説</span>＝攪乱が中程度の頻度・強度のとき種多様性が最大になる。</p>
-  <p class="pts">得点のコツ：3図＝低攪乱(排除)・中攪乱(最大)・高攪乱(耐性種のみ)の山型を説明し、仮説名を明記。</p>`}
+{tag:'★複数年',title:'資源利用曲線を読み取る',prompt:'曲線の幅と重なりから、種内競争・種間競争の強弱を説明せよ。',points:[['幅','分散'],['種内競争'],['重なり'],['種間競争'],['ニッチ']],model:'各種の資源利用曲線の幅が広いほど、その種の個体間で利用資源が重なり種内競争が強い。2種の曲線の重なりが大きいほど同じ資源を奪い合うため種間競争が強い。したがって幅と重なりを別々の軸として判断する。',extra:'授業図のa〜dは「幅の広狭×重なりの大小」の2×2で整理する。図中のラベルと対応は必ず原図で確認する。'},
+{tag:'★複数年',title:'相互関係（＋/0/−）',prompt:'相利共生・片利共生・捕食/寄生・競争を、効果の符号と例で説明せよ。',points:[['相利共生','＋＋'],['片利共生','＋0'],['捕食','寄生'],['競争','−−'],['例']],model:'両者が利益を受ける＋＋は相利共生、一方のみ利益を受け他方に影響がない＋0は片利共生、一方が利益を受け他方が損失を受ける＋−は捕食または寄生、双方が不利益を受ける−−は競争である。',extra:'例を書く場合は「植物は送粉を得る／昆虫は蜜を得る」のように、両者が何を受け取るかを対で示す。'},
+{tag:'★複数年',title:'動物の学習',prompt:'異なる学習を4種類挙げ、各々を短く定義して例を示せ。',points:[['慣れ','馴化'],['刷り込み'],['古典的条件づけ','レスポンデント'],['オペラント','試行錯誤'],['例']],model:'慣れは無害な刺激への反応低下、刷り込みは感受期に対象を記憶する学習、古典的条件づけは刺激同士の連合、オペラント条件づけは行動結果の報酬・罰による行動頻度の変化である。各項目に具体例を添える。',extra:'種類名だけでは点になりにくい。「名称＋定義＋例」の3点セットで書く。'},
+{tag:'頻出',title:'生態系サービスの4分類',prompt:'4分類を挙げ、各1例を示せ。',points:[['供給'],['調整'],['文化'],['基盤','支持'],['例']],model:'供給サービスは食料や木材、調整サービスは気候調整や水質浄化、文化的サービスは観光や教育、基盤・支持サービスは土壌形成や栄養塩循環である。基盤サービスは他のサービスの成立を支える。',extra:'講義によっては近年のIPBESの分類ではなく、ミレニアム生態系評価の4分類を前提とする。授業資料の語を優先する。'},
+{tag:'頻出',title:'植物の防御3様式',prompt:'物理的・化学的・生物的防御を、それぞれ例とともに説明せよ。',points:[['物理的','機械的'],['化学的'],['生物的','間接'],['誘導防御'],['例']],model:'物理的防御には棘や硬い表皮、化学的防御にはアルカロイドやタンニン、生物的・間接防御には揮発性物質で寄生蜂を誘引する例がある。化学防御は常時型の構成的防御と、食害後に発現する誘導防御に分けられる。',extra:'「防御物質がある」で止めず、毒性・忌避・消化阻害など、植食者へどう作用するかを書く。'},
+{tag:'頻出',title:'α・β・γ多様性',prompt:'3種類の多様性の空間スケールと関係を説明せよ。',points:[['α','局所'],['β','入れ替わり'],['γ','地域'],['γ','α','β']],model:'α多様性は局所区画内の多様性、γ多様性は地域全体の多様性、β多様性は区画間の種組成の違い・入れ替わりを表す。乗法的分割ではγ＝平均α×β、すなわちβ＝γ/平均αで表せる。',extra:'β多様性には複数の定義がある。試験では問題文が指定する式に従い、単純な種数か指数かも確認する。'}
 ];
-
-/* ---------------- FLASHCARD LOGIC ---------------- */
-let filtered=[...TERMS.map((t,i)=>i)];
-let idx=0, flipped=false, curFilter="all";
-const status={}; // idx -> 'know'|'again'
-
-function applyFilter(){
-  if(curFilter==="all") filtered=TERMS.map((t,i)=>i);
-  else if(curFilter==="hot") filtered=TERMS.map((t,i)=>i).filter(i=>TERMS[i].hot);
-  else if(curFilter==="again") filtered=TERMS.map((t,i)=>i).filter(i=>status[i]==="again");
-  if(filtered.length===0) filtered=[-1];
-  idx=0; flipped=false; render();
-}
-function render(){
-  const i=filtered[idx];
-  const front=document.getElementById('cFront');
-  const back=document.getElementById('cBack');
-  document.getElementById('knowRow').style.display=flipped?'flex':'none';
-  if(i===-1){
-    document.getElementById('cTerm').textContent="該当カードなし";
-    document.getElementById('cYears').textContent="";
-    document.getElementById('cFlag').className="flag";document.getElementById('cFlag').textContent="";
-    front.classList.remove('hide');back.classList.add('hide');
-    document.getElementById('prog').textContent="0 / 0";return;
-  }
-  const t=TERMS[i];
-  document.getElementById('cTerm').textContent=t.t;
-  document.getElementById('cYears').textContent=t.y;
-  const fl=document.getElementById('cFlag');
-  if(t.hot){fl.className="flag hot";fl.textContent="★ HOT";}
-  else{fl.className="flag warm";fl.textContent="出題あり";}
-  back.innerHTML=`<div class="lead">📖 定義</div>${t.d}
-    <div class="model"><b style="color:var(--fern)">✍ 解答例（50〜100字）</b><br>${t.m}</div>
-    <div class="cnt">約${t.m.replace(/\\s/g,'').length}字</div>`;
-  if(flipped){front.classList.add('hide');back.classList.remove('hide');}
-  else{front.classList.remove('hide');back.classList.add('hide');}
-  document.getElementById('prog').textContent=`${idx+1} / ${filtered.length}`;
-}
-function flip(){flipped=!flipped;render();}
-function move(d){
-  flipped=false;idx+=d;
-  if(idx<0)idx=filtered.length-1;
-  if(idx>=filtered.length)idx=0;
-  render();
-}
-function mark(s){
-  const i=filtered[idx];if(i===-1)return;
-  status[i]=s;
-  if(idx<filtered.length-1){idx++;flipped=false;render();}
-  else{flipped=false;render();}
-}
-document.querySelectorAll('.fbtn').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on');curFilter=b.dataset.f;applyFilter();
-});
-
-/* ---------------- PRACTICE RENDER ---------------- */
-function buildPractice(){
-  const el=document.getElementById('practice');
-  el.innerHTML=QS.map(q=>`
-   <div class="q">
-     <div class="qhead"><div class="qtag">${q.tag}</div><div class="qyears">${q.years}</div></div>
-     <h3>${q.title}</h3>
-     <div class="body">${q.body}</div>
-     <details><summary>モデル解答・採点ポイントを見る</summary>
-       <div class="ans">${q.ans}</div>
-     </details>
-   </div>`).join('');
-}
-
-/* ---------------- TABS ---------------- */
-document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
-  t.classList.add('on');
-  ['plan','cards','practice'].forEach(v=>document.getElementById(v).classList.add('hide'));
-  document.getElementById(t.dataset.view).classList.remove('hide');
-});
-
-/* ---------------- TIMER ---------------- */
-let total=120*60, remain=total, running=false, ivl=null;
-const phases=[
- {end:120*60,start:105*60,t:"作戦を読む（15分）",h:"問1必答・選択の仕組みを頭に入れる"},
- {end:105*60,start:60*60,t:"用語カード（45分）",h:"★HOTから。問1の40点を固める"},
- {end:60*60,start:10*60,t:"記述演習（50分）",h:"★複数年テーマで持ちネタを2〜3本"},
- {end:10*60,start:0,t:"弱点の最終確認（10分）",h:"「もう一度」カードだけ見直す"}
-];
-function fmt(s){const m=Math.floor(s/60),ss=s%60;return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;}
-function updatePhase(){
-  const elapsed=total-remain; // not used; use remain
-  const ph=phases.find(p=>remain<=p.end && remain>p.start)||phases[phases.length-1];
-  document.getElementById('phaseTitle').textContent=ph.t;
-  document.getElementById('phaseHint').textContent=ph.h;
-}
-function tick(){
-  if(remain<=0){clearInterval(ivl);running=false;
-    document.getElementById('phaseTitle').textContent="⏰ 2時間終了！おつかれさま";
-    document.getElementById('phaseHint').textContent="覚えた用語と持ちネタを本番で出しきろう";
-    document.getElementById('tbtn').textContent="リセット";return;}
-  remain--;
-  const c=document.getElementById('clock');
-  c.textContent=fmt(remain);
-  c.classList.toggle('low',remain<=10*60);
-  updatePhase();
-}
-document.getElementById('tbtn').onclick=function(){
-  if(!running && remain>0 && remain<total){ // paused mid-way -> resume
-    running=true;ivl=setInterval(tick,1000);this.textContent="一時停止";return;
-  }
-  if(!running && (remain===total||remain<=0)){ // fresh start or after reset
-    remain=total;running=true;this.textContent="一時停止";
-    document.getElementById('clock').classList.remove('low');
-    ivl=setInterval(tick,1000);updatePhase();return;
-  }
-  if(running){running=false;clearInterval(ivl);this.textContent="再開";return;}
-};
-
-buildPractice();
-applyFilter();
+let ratings=JSON.parse(localStorage.getItem('ecoRatings')||'{}'),answers=JSON.parse(localStorage.getItem('ecoAnswers')||'{}'),filter='all',idx=0,qidx=0;
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+function normalize(s){return (s||'').toLowerCase().replace(/[\s　、。・,\.\-＝=()（）]/g,'')}
+function evaluate(text,groups){const n=normalize(text);return groups.map(g=>({label:g.join('／'),hit:g.some(x=>n.includes(normalize(x)))}))}
+function score(items,text){if(!text.trim())return 0;const base=items.filter(x=>x.hit).length/items.length*85;const len=Math.min(normalize(text).length/80,1)*15;return Math.round(base+len)}
+function save(){localStorage.setItem('ecoRatings',JSON.stringify(ratings));localStorage.setItem('ecoAnswers',JSON.stringify(answers));updateStats()}
+function list(){return TERMS.map((t,i)=>({...t,i})).filter(t=>filter==='all'||filter==='hot'&&t.hot||filter==='weak'&&['again','hard'].includes(ratings[t.i]))}
+function renderCard(){const ls=list(),el=$('#cardArea');if(!ls.length){el.innerHTML='<div class="term">該当カードなし</div><p class="small" style="text-align:center">先にカードへ回答し、弱点を登録してください。</p>';$('#cardProgress').textContent='0 / 0';return}idx=(idx+ls.length)%ls.length;const t=ls[idx],a=answers['t'+t.i]||'';$('#cardProgress').textContent=`${idx+1} / ${ls.length}`;el.innerHTML=`<div class="row meta"><span>${t.y}</span><span class="chip ${t.hot?'hot':''}">${t.hot?'★ HOT':'出題あり'}</span></div><div class="term">${t.t}</div><div class="prompt">解説を見る前に50〜100字で説明</div><textarea id="termInput" placeholder="定義・仕組み・例または帰結を書く…">${a}</textarea><div class="row meta"><span>目安50〜100字</span><span id="termCount">${a.length}字</span></div><button class="primary" id="gradeTerm">自動採点して解説を見る</button><div id="termResult"></div>`;$('#termInput').oninput=e=>{$('#termCount').textContent=e.target.value.length+'字';answers['t'+t.i]=e.target.value;save()};$('#gradeTerm').onclick=()=>gradeTerm(t)}
+function gradeTerm(t){const text=$('#termInput').value,items=evaluate(text,t.kw),s=score(items,text);$('#termResult').innerHTML=`<div class="box"><div class="row"><b>粗い自動採点</b><span class="score">${s}<small>点</small></span></div><div class="bar"><i style="width:${s}%"></i></div><div>${items.map(x=>`<span class="kw ${x.hit?'hit':'miss'}">${x.hit?'✓':'＋'} ${x.label}</span>`).join('')}</div><p class="small">文字列と類義語による簡易判定です。因果の正確さはモデル解答と照合してください。</p></div><div class="box"><h4>定義</h4>${t.d}</div><div class="box"><h4>50〜100字の解答例</h4>${t.m}</div><div class="box"><h4>関連情報</h4>${t.rel}</div><div class="box"><h4>もう一段細かい解説</h4>${t.detail}</div><div class="box warning"><h4>よくある失点</h4>${t.trap}</div><div class="rating"><button data-r="again">✗ もう一度</button><button data-r="hard">△ 難しい</button><button data-r="good">✓ 説明できた</button></div>`;$$('#termResult [data-r]').forEach(b=>b.onclick=()=>{ratings[t.i]=b.dataset.r;save();idx++;renderCard()})}
+function renderRecall(){const r=RECALL[0],a=answers.recall||'';$('#recallArea').innerHTML=`<span class="tag">統合問題</span><h3>${r.title}</h3><p>${r.prompt}</p><div class="chips">${r.words.map(x=>`<span class="chip">${x}</span>`).join('')}</div><textarea id="recallInput">${a}</textarea><div class="row meta"><span>120〜200字推奨</span><span id="recallCount">${a.length}字</span></div><button class="primary" id="gradeRecall">自動採点</button><div id="recallResult"></div>`;$('#recallInput').oninput=e=>{answers.recall=e.target.value;$('#recallCount').textContent=e.target.value.length+'字';save()};$('#gradeRecall').onclick=()=>{const text=$('#recallInput').value,it=evaluate(text,r.points),s=score(it,text);$('#recallResult').innerHTML=resultHTML(s,it,r.model,'矢印で並べるだけでなく、「その結果」で因果を接続できているか確認する。')}}
+function resultHTML(s,it,model,extra){return `<div class="box"><div class="row"><b>粗い自動採点</b><span class="score">${s}<small>点</small></span></div><div class="checklist">${it.map(x=>`<div class="check ${x.hit?'hit':'miss'}">${x.hit?'✓':'△'} ${x.label}</div>`).join('')}</div></div><div class="box"><h4>モデル解答</h4>${model}</div><div class="box note"><h4>補足・採点のコツ</h4>${extra}</div>`}
+function renderQTabs(){$('#qTabs').innerHTML=QS.map((q,i)=>`<button class="fbtn ${i===qidx?'on':''}" data-q="${i}">問${i+1}</button>`).join('');$$('[data-q]').forEach(b=>b.onclick=()=>{qidx=+b.dataset.q;renderQTabs();renderPractice()})}
+function renderPractice(){const q=QS[qidx],key='q'+qidx,a=answers[key]||'';$('#practiceArea').innerHTML=`<div class="q"><div class="row"><span class="tag">${q.tag}</span><span class="meta">120〜200字推奨</span></div><h3>${q.title}</h3><p>${q.prompt}</p><div class="box note"><b>答案の型：</b>結論 → 判断基準 → 条件別説明 → 関連用語</div><textarea id="qInput">${a}</textarea><div class="row meta"><span>資料を見ずに書く</span><span id="qCount">${a.length}字</span></div><button class="primary" id="gradeQ">自動採点してモデル解答を見る</button><div id="qResult"></div></div>`;$('#qInput').oninput=e=>{answers[key]=e.target.value;$('#qCount').textContent=e.target.value.length+'字';save()};$('#gradeQ').onclick=()=>{const it=evaluate($('#qInput').value,q.points),s=score(it,$('#qInput').value);$('#qResult').innerHTML=resultHTML(s,it,q.model,q.extra)}}
+function updateStats(){const vals=Object.values(ratings);$('#weakStat').textContent=vals.filter(x=>x==='again'||x==='hard').length;$('#goodStat').textContent=vals.filter(x=>x==='good').length;$('#answerStat').textContent=Object.values(answers).filter(x=>x.trim()).length}
+$$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');['plan','cards','recall','practice','review'].forEach(id=>$('#'+id).classList.add('hide'));$('#'+b.dataset.view).classList.remove('hide');updateStats()});$$('[data-filter]').forEach(b=>b.onclick=()=>{$$('[data-filter]').forEach(x=>x.classList.remove('on'));b.classList.add('on');filter=b.dataset.filter;idx=0;renderCard()});$('#prevCard').onclick=()=>{idx--;renderCard()};$('#nextCard').onclick=()=>{idx++;renderCard()};$('#startWeak').onclick=()=>{filter='weak';idx=0;$$('[data-filter]').forEach(x=>x.classList.toggle('on',x.dataset.filter==='weak'));$$('.tab').forEach(x=>x.classList.toggle('on',x.dataset.view==='cards'));['plan','recall','practice','review'].forEach(id=>$('#'+id).classList.add('hide'));$('#cards').classList.remove('hide');renderCard()};$('#resetData').onclick=()=>{ratings={};answers={};save();renderCard();renderRecall();renderPractice()};
+let remain=7200,running=false,timer=null;const phaseData=[{until:900,t:'出題構造・作戦（15分）',h:'頻出テーマと答案の型を確認'},{until:3000,t:'想起カード（35分）',h:'先に50〜100字で答えてから解説'},{until:4200,t:'白紙アウトプット（20分）',h:'用語を因果関係で接続'},{until:6300,t:'記述演習（35分）',h:'答案作成→自動採点→1文追記'},{until:7200,t:'弱点再テスト（15分）',h:'難しいカードだけ再挑戦'}];function timerView(){const e=7200-remain,m=Math.floor(remain/60),s=remain%60;$('#clock').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;$('#timerProgress').style.width=e/72+'%';const p=phaseData.find(x=>e<x.until)||phaseData[4];$('#phaseTitle').textContent=p.t;$('#phaseHint').textContent=p.h}$('#timerBtn').onclick=()=>{if(remain===0){remain=7200;timerView();$('#timerBtn').textContent='開始';return}running=!running;$('#timerBtn').textContent=running?'一時停止':'再開';clearInterval(timer);if(running)timer=setInterval(()=>{remain--;timerView();if(remain<=0){clearInterval(timer);running=false;$('#timerBtn').textContent='リセット';$('#phaseTitle').textContent='2時間終了！';$('#phaseHint').textContent='弱点とモデル答案を最終確認しよう'}},1000)};
+renderCard();renderRecall();renderQTabs();renderPractice();updateStats();timerView();
 </script>
 </body>
 </html>
